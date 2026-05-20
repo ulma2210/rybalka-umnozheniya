@@ -16,6 +16,7 @@
           Лови рыбку с правильным ответом, пока не вышло время. Чем больше верных ответов,
           тем быстрее становится течение.
         </p>
+        <p class="record-chip">Лучший улов: <strong id="best-score-start">0</strong></p>
         <ul class="rules">
           <li>Двигай лодку мышью или клавишами <strong>A/D</strong>, <strong>←/→</strong>.</li>
           <li>Нажимай прямо на рыбку с правильным ответом.</li>
@@ -43,6 +44,10 @@
           <span class="stat-label">Время</span>
           <strong id="timer-value">75</strong>
         </div>
+        <div class="stat stat-highlight">
+          <span class="stat-label">Рекорд</span>
+          <strong id="best-score-value">0</strong>
+        </div>
       </header>
 
       <div class="feedback" id="feedback" aria-live="polite">Лови правильную рыбку!</div>
@@ -52,8 +57,8 @@
         <div class="shore"></div>
         <div class="boat" id="boat">
           <div class="boat-top"></div>
-          <div class="hook-line"></div>
-          <div class="hook"></div>
+          <div class="boat-window"></div>
+          <div class="boat-wave"></div>
         </div>
         <div class="fish-layer" id="fish-layer"></div>
       </section>
@@ -64,6 +69,7 @@
         <p class="eyebrow">Раунд окончен</p>
         <h2 id="result-title">Отличный улов!</h2>
         <p class="result-score">Ты набрал(а) <strong id="final-score">0</strong> очков.</p>
+        <p class="result-score">Лучший результат: <strong id="best-score-end">0</strong></p>
         <p class="result-extra" id="final-message">Попробуй ещё раз и побей свой результат.</p>
         <button class="primary-button" id="restart-button" type="button">Играть снова</button>
       </div>

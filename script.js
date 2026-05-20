@@ -6,10 +6,12 @@ const MAX_MULTIPLIER = 10;
 const BASE_SPEED = 70;
 const SPEED_STEP = 9;
 const FEEDBACK_DELAY = 900;
+const BEST_SCORE_KEY = "rybalka-umnozheniya-best-score";
 
 const gameState = {
   status: "start",
   score: 0,
+  bestScore: 0,
   lives: STARTING_LIVES,
   timeLeft: GAME_DURATION,
   currentQuestion: null,
@@ -30,6 +32,9 @@ const screens = {
 const ui = {
   question: document.getElementById("question-text"),
   score: document.getElementById("score-value"),
+  bestScore: document.getElementById("best-score-value"),
+  bestScoreStart: document.getElementById("best-score-start"),
+  bestScoreEnd: document.getElementById("best-score-end"),
   lives: document.getElementById("lives-value"),
   timer: document.getElementById("timer-value"),
   fishLayer: document.getElementById("fish-layer"),
@@ -42,6 +47,24 @@ const ui = {
   startButton: document.getElementById("start-button"),
   restartButton: document.getElementById("restart-button")
 };
+
+function loadBestScore() {
+  try {
+    const storedValue = window.localStorage.getItem(BEST_SCORE_KEY);
+    const parsedValue = Number.parseInt(storedValue ?? "0", 10);
+    gameState.bestScore = Number.isFinite(parsedValue) ? parsedValue : 0;
+  } catch {
+    gameState.bestScore = 0;
+  }
+}
+
+function saveBestScore() {
+  try {
+    window.localStorage.setItem(BEST_SCORE_KEY, String(gameState.bestScore));
+  } catch {
+    // Ignore storage errors so the game keeps working in restrictive browsers.
+  }
+}
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, element]) => {
@@ -115,6 +138,9 @@ function spawnFishAnswers(correctAnswer) {
 function renderStats() {
   ui.question.textContent = gameState.currentQuestion?.label ?? "0 × 0";
   ui.score.textContent = String(gameState.score);
+  ui.bestScore.textContent = String(gameState.bestScore);
+  ui.bestScoreStart.textContent = String(gameState.bestScore);
+  ui.bestScoreEnd.textContent = String(gameState.bestScore);
   ui.lives.textContent = String(gameState.lives);
   ui.timer.textContent = String(gameState.timeLeft);
 }
@@ -167,10 +193,9 @@ function nextQuestion() {
 }
 
 function animateHook() {
-  const hook = ui.boat.querySelector(".hook");
-  hook.classList.remove("hook-catching");
-  void hook.offsetWidth;
-  hook.classList.add("hook-catching");
+  ui.boat.classList.remove("boat-catch");
+  void ui.boat.offsetWidth;
+  ui.boat.classList.add("boat-catch");
 }
 
 function removeFishById(fishId) {
@@ -187,6 +212,10 @@ function handleCatch(answer) {
   if (answer === gameState.currentQuestion.answer) {
     gameState.score += 1;
     setFeedback("Верно! Отличный улов!", "success");
+    if (gameState.score > gameState.bestScore) {
+      gameState.bestScore = gameState.score;
+      saveBestScore();
+    }
     nextQuestion();
     return;
   }
@@ -279,6 +308,7 @@ function endGame() {
   ui.finalScore.textContent = String(gameState.score);
   ui.resultTitle.textContent = summary.title;
   ui.finalMessage.textContent = summary.text;
+  renderStats();
   showScreen("end");
 }
 
@@ -370,8 +400,9 @@ function onKeyDown(event) {
 
 ui.startButton.addEventListener("click", startGame);
 ui.restartButton.addEventListener("click", startGame);
-ui.pond.addEventListener("mousemove", moveBoatToPointer);
+ui.pond.addEventListener("pointermove", moveBoatToPointer);
 window.addEventListener("keydown", onKeyDown);
 
+loadBestScore();
 renderStats();
 renderBoat();
